@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>The Would Box - Feed Your Commitment</title>
+    <link rel="manifest" href="would-manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            position: relative;
+        }
+
+        /* Feed Box Logo */
+        .feed-box-logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .feed-box-logo svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            padding: 20px;
+            min-height: 100vh;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 28px;
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        /* Forms */
+        input, textarea, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        /* Needs List */
+        .needs-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .need-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .need-item.top-three {
+            border-left: 4px solid gold;
+            background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, #f8f9fa 100%);
+        }
+
+        .need-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        /* Would Box Selection */
+        .would-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .would-item.selected {
+            background: #667eea;
+            color: white;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .would-item.boxed {
+            border: 3px solid #667eea;
+            position: relative;
+        }
+
+        .would-item.boxed::after {
+            content: '📦';
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+        }
+
+        /* Draggable Priority List */
+        .priority-list {
+            margin: 20px 0;
+        }
+
+        .priority-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .priority-item.dragging {
+            opacity: 0.5;
+        }
+
+        .priority-item.top-two {
+            background: linear-gradient(90deg, rgba(102,126,234,0.1) 0%, white 100%);
+            border-color: #667eea;
+        }
+
+        .priority-number {
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        /* Daily Action */
+        .action-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .action-text {
+            font-size: 24px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        /* Score Display */
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .score-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+        }
+
+        .score-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .score-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            color: #999;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Pairing Code Display */
+        .pairing-code {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .code-display {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            letter-spacing: 10px;
+            margin: 10px 0;
+        }
+
+        /* Top Three Selector */
+        .top-three-selector {
+            margin: 20px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(255,215,0,0.05) 100%);
+            border-radius: 15px;
+            border: 2px dashed gold;
+        }
+
+        .top-three-selector h3 {
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .mb-80 {
+            margin-bottom: 80px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Welcome Screen -->
+    <div id="welcome" class="screen active">
+        <h1>The Would Box</h1>
+        <div class="feed-box-logo">
+            <svg viewBox="0 0 100 100">
+                <!-- Feed box base -->
+                <rect x="20" y="40" width="60" height="40" fill="#8B4513" />
+                <!-- Left lid (closed) -->
+                <path d="M 20 40 L 50 20 L 50 40 L 20 40" fill="#A0522D" stroke="#654321" stroke-width="1"/>
+                <!-- Right lid (opening) -->
+                <path d="M 50 20 L 80 40 L 50 40" fill="#A0522D" stroke="#654321" stroke-width="1" transform-origin="50 30" style="animation: openLid 2s ease-in-out infinite alternate"/>
+                <!-- Heart inside -->
+                <path d="M 50 50 C 45 45, 35 45, 35 55 C 35 65, 50 75, 50 75 C 50 75, 65 65, 65 55 C 65 45, 55 45, 50 50" fill="#FF69B4" opacity="0.7"/>
+                <style>
+                    @keyframes openLid {
+                        to { transform: rotate(-30deg); }
+                    }
+                </style>
+            </svg>
+        </div>
+        <div class="card">
+            <h2>Feed Your Commitment</h2>
+            <p style="margin-bottom: 20px; color: #666; line-height: 1.6;">
+                Commitment grows through willing acts. The Would Box helps partners discover and serve each other's actual needs.
+            </p>
+            <button class="btn" onclick="startOnboarding()">Begin</button>
+            <button class="btn btn-secondary" style="margin-top: 10px;" onclick="loginExisting()">I Have an Account</button>
+        </div>
+    </div>
+
+    <!-- Setup Screen -->
+    <div id="setup" class="screen">
+        <h1>Your Identity</h1>
+        <div class="card">
+            <input type="text" id="userName" placeholder="Your name" maxlength="20">
+            <input type="text" id="partnerName" placeholder="Your partner's name" maxlength="20">
+            <button class="btn" onclick="createAccount()">Create Account</button>
+        </div>
+    </div>
+
+    <!-- Needs List Screen -->
+    <div id="needsList" class="screen mb-80">
+        <h1>My Needs</h1>
+        <div class="card">
+            <p style="margin-bottom: 15px; color: #666;">What do you need from your partner?</p>
+            <textarea id="newNeed" placeholder="Enter a need..." rows="2"></textarea>
+            <button class="btn" onclick="addNeed()">Add Need</button>
+        </div>
+        
+        <div class="card">
+            <h2>Current Needs</h2>
+            <ul id="needsListItems" class="needs-list"></ul>
+        </div>
+
+        <div class="card top-three-selector">
+            <h3>🌟 Select Your Top 3 (Secret Triple Points)</h3>
+            <p style="color: #666; font-size: 14px;">These won't be revealed to your partner but earn triple points when served.</p>
+            <div id="topThreeList"></div>
+        </div>
+
+        <div class="card">
+            <button class="btn" onclick="saveNeeds()">Save & Continue</button>
+        </div>
+    </div>
+
+    <!-- Partner's Needs (Would Selection) -->
+    <div id="wouldSelection" class="screen mb-80">
+        <h1>Partner's Needs</h1>
+        <div class="card">
+            <h2>Select 5 You Would Do</h2>
+            <p style="color: #666; margin-bottom: 15px;">Choose what you're willing to commit to.</p>
+            <div id="partnerNeedsList"></div>
+            <p style="text-align: center; color: #667eea; font-weight: bold; margin-top: 10px;">
+                Selected: <span id="selectedCount">0</span>/5
+            </p>
+        </div>
+        
+        <div class="card">
+            <button class="btn" onclick="confirmWouldSelection()">Box These 5</button>
+        </div>
+    </div>
+
+    <!-- Priority Setting -->
+    <div id="prioritySetting" class="screen mb-80">
+        <h1>Set Your Priorities</h1>
+        <div class="card">
+            <p style="color: #666; margin-bottom: 15px;">Drag to reorder. Top 2 earn double points!</p>
+            <div id="priorityList" class="priority-list"></div>
+            <button class="btn" onclick="savePriorities()">Save Priorities</button>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="screen mb-80">
+        <h1>The Would Box</h1>
+        
+        <div class="score-display">
+            <div class="score-card">
+                <div class="score-number" id="myScore">0</div>
+                <div class="score-label">My Score</div>
+            </div>
+            <div class="score-card">
+                <div class="score-number" id="partnerScore">0</div>
+                <div class="score-label">Partner's Score</div>
+            </div>
+        </div>
+
+        <div class="action-card">
+            <div style="font-size: 18px; opacity: 0.9;">Today's Would:</div>
+            <div class="action-text" id="todaysAction">Loading...</div>
+            <button class="btn" style="background: white; color: #667eea; margin-top: 20px;" onclick="markComplete()">Mark Complete</button>
+        </div>
+
+        <div class="card">
+            <button class="btn btn-secondary" onclick="showWeeklyGuessing()">Weekly Guessing Game</button>
+        </div>
+    </div>
+
+    <!-- Weekly Guessing -->
+    <div id="weeklyGuessing" class="screen mb-80">
+        <h1>Weekly Guessing</h1>
+        <div class="card">
+            <h2>What Did Your Partner Work On?</h2>
+            <p style="color: #666; margin-bottom: 15px;">Select all you think they completed this week.</p>
+            <div id="guessingList"></div>
+            <button class="btn" onclick="submitGuesses()">Submit Guesses</button>
+        </div>
+    </div>
+
+    <!-- Pairing Screen -->
+    <div id="pairing" class="screen">
+        <h1>Connect Partners</h1>
+        <div class="card">
+            <h2>Your Pairing Code</h2>
+            <div class="pairing-code">
+                <div class="code-display" id="pairingCode">----</div>
+                <p style="color: #666; margin-top: 10px;">Share this with your partner</p>
+            </div>
+            <button class="btn btn-secondary" onclick="copyCode()">Copy Code</button>
+        </div>
+        
+        <div class="card">
+            <h2>Enter Partner's Code</h2>
+            <input type="text" id="partnerCode" placeholder="Enter 4-digit code" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+            <button class="btn" onclick="connectPartner()">Connect</button>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav" style="display: none;">
+        <a href="#" class="nav-item active" onclick="showDashboard(); return false;">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showNeedsList(); return false;">
+            <span class="nav-icon">📝</span>
+            <span>Needs</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showWouldList(); return false;">
+            <span class="nav-icon">📦</span>
+            <span>Would</span>
+        </a>
+        <a href="#" class="nav-item" onclick="showScores(); return false;">
+            <span class="nav-icon">🏆</span>
+            <span>Score</span>
+        </a>
+    </div>
+
+    <script src="would-box.js"></script>
+</body>
+</html>
