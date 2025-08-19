@@ -22,6 +22,48 @@
             position: relative;
         }
 
+        /* User Header */
+        .user-header {
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .user-info {
+            font-size: 16px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .partner-info {
+            font-size: 14px;
+            color: #764ba2;
+            margin-top: 5px;
+        }
+
+        .pairing-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 5px;
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .pairing-status.paired {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .pairing-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
         /* Feed Box Logo */
         .feed-box-logo {
             width: 60px;
@@ -75,6 +117,12 @@
             color: #667eea;
         }
 
+        h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #764ba2;
+        }
+
         /* Forms */
         input, textarea, select {
             width: 100%;
@@ -86,7 +134,7 @@
             transition: all 0.3s ease;
         }
 
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -117,6 +165,14 @@
             border: 2px solid #667eea;
         }
 
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+            width: auto;
+            display: inline-block;
+            margin: 5px;
+        }
+
         /* Needs List */
         .needs-list {
             list-style: none;
@@ -139,9 +195,30 @@
             background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, #f8f9fa 100%);
         }
 
-        .need-item input[type="checkbox"] {
-            width: auto;
-            margin: 0;
+        /* Suggested Needs */
+        .suggestions-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 15px;
+        }
+
+        .suggestion-chip {
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 5px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .suggestion-chip:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
         }
 
         /* Would Box Selection */
@@ -161,21 +238,7 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .would-item.boxed {
-            border: 3px solid #667eea;
-            position: relative;
-        }
-
-        .would-item.boxed::after {
-            content: '📦';
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 20px;
-        }
-
-        /* Draggable Priority List */
+        /* Priority List */
         .priority-list {
             margin: 20px 0;
         }
@@ -212,6 +275,21 @@
             justify-content: center;
             margin-right: 15px;
             font-weight: bold;
+        }
+
+        /* Pairing Request */
+        .pairing-request {
+            background: linear-gradient(135deg, rgba(255,215,0,0.1) 0%, rgba(102,126,234,0.1) 100%);
+            border: 2px solid #667eea;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .pairing-request h3 {
+            color: #667eea;
+            margin-bottom: 15px;
         }
 
         /* Daily Action */
@@ -324,6 +402,22 @@
         .mb-80 {
             margin-bottom: 80px;
         }
+
+        .notification {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .notification.success {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
     </style>
 </head>
 <body>
@@ -362,6 +456,20 @@
         <h1>Your Identity</h1>
         <div class="card">
             <input type="text" id="userName" placeholder="Your name" maxlength="20">
+            <select id="userAge">
+                <option value="">Select your age range</option>
+                <option value="20-30">20-30</option>
+                <option value="30-40">30-40</option>
+                <option value="40-50">40-50</option>
+                <option value="50-60">50-60</option>
+                <option value="60+">60+</option>
+            </select>
+            <select id="userGender">
+                <option value="">Select gender (for suggestions)</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other/Prefer not to say</option>
+            </select>
             <input type="text" id="partnerName" placeholder="Your partner's name" maxlength="20">
             <button class="btn" onclick="createAccount()">Create Account</button>
         </div>
@@ -369,15 +477,27 @@
 
     <!-- Needs List Screen -->
     <div id="needsList" class="screen mb-80">
+        <div class="user-header">
+            <div class="user-info">👤 <span id="currentUserName">User</span></div>
+            <div class="partner-info">💑 Partner: <span id="currentPartnerName">Not paired</span></div>
+            <div class="pairing-status" id="pairingStatusBadge">Not Paired</div>
+        </div>
+        
         <h1>My Needs</h1>
+        
         <div class="card">
-            <p style="margin-bottom: 15px; color: #666;">What do you need from your partner?</p>
+            <p style="margin-bottom: 15px; color: #666;">What do you need from your partner? (1-20 items)</p>
             <textarea id="newNeed" placeholder="Enter a need..." rows="2"></textarea>
             <button class="btn" onclick="addNeed()">Add Need</button>
         </div>
+
+        <div class="card suggestions-container">
+            <h3>💡 Popular Needs for Your Age/Gender</h3>
+            <div id="suggestedNeeds"></div>
+        </div>
         
         <div class="card">
-            <h2>Current Needs</h2>
+            <h2>Current Needs (<span id="needsCount">0</span>/20)</h2>
             <ul id="needsListItems" class="needs-list"></ul>
         </div>
 
@@ -392,8 +512,48 @@
         </div>
     </div>
 
+    <!-- Pairing Screen -->
+    <div id="pairing" class="screen">
+        <div class="user-header">
+            <div class="user-info">👤 <span class="userName">User</span></div>
+            <div class="partner-info">💑 Looking for: <span class="partnerName">Partner</span></div>
+        </div>
+
+        <h1>Connect Partners</h1>
+        
+        <div id="pendingRequest" class="pairing-request" style="display: none;">
+            <h3>🔔 Pairing Request!</h3>
+            <p><strong><span id="requesterName"></span></strong> wants to pair with you!</p>
+            <button class="btn btn-small" onclick="acceptPairing()">Accept</button>
+            <button class="btn btn-small btn-secondary" onclick="rejectPairing()">Decline</button>
+        </div>
+
+        <div class="card">
+            <h2>Your Pairing Code</h2>
+            <div class="pairing-code">
+                <div class="code-display" id="pairingCode">----</div>
+                <p style="color: #666; margin-top: 10px;">Share this with your partner</p>
+            </div>
+            <button class="btn btn-secondary" onclick="copyCode()">Copy Code</button>
+        </div>
+        
+        <div class="card">
+            <h2>Enter Partner's Code</h2>
+            <input type="text" id="partnerCode" placeholder="Enter 4-digit code" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+            <button class="btn" onclick="requestPairing()">Request Pairing</button>
+        </div>
+
+        <div id="pairingStatus" class="notification" style="display: none;"></div>
+    </div>
+
     <!-- Partner's Needs (Would Selection) -->
     <div id="wouldSelection" class="screen mb-80">
+        <div class="user-header">
+            <div class="user-info">👤 <span class="userName">User</span></div>
+            <div class="partner-info">💑 Serving: <span class="partnerName">Partner</span></div>
+            <div class="pairing-status paired">Paired</div>
+        </div>
+
         <h1>Partner's Needs</h1>
         <div class="card">
             <h2>Select 5 You Would Do</h2>
@@ -411,6 +571,11 @@
 
     <!-- Priority Setting -->
     <div id="prioritySetting" class="screen mb-80">
+        <div class="user-header">
+            <div class="user-info">👤 <span class="userName">User</span></div>
+            <div class="partner-info">💑 For: <span class="partnerName">Partner</span></div>
+        </div>
+
         <h1>Set Your Priorities</h1>
         <div class="card">
             <p style="color: #666; margin-bottom: 15px;">Drag to reorder. Top 2 earn double points!</p>
@@ -421,6 +586,12 @@
 
     <!-- Dashboard -->
     <div id="dashboard" class="screen mb-80">
+        <div class="user-header">
+            <div class="user-info">👤 <span class="userName">User</span></div>
+            <div class="partner-info">💑 With: <span class="partnerName">Partner</span></div>
+            <div class="pairing-status paired">Active</div>
+        </div>
+
         <h1>The Would Box</h1>
         
         <div class="score-display">
@@ -430,7 +601,7 @@
             </div>
             <div class="score-card">
                 <div class="score-number" id="partnerScore">0</div>
-                <div class="score-label">Partner's Score</div>
+                <div class="score-label"><span class="partnerName">Partner</span>'s Score</div>
             </div>
         </div>
 
@@ -447,31 +618,17 @@
 
     <!-- Weekly Guessing -->
     <div id="weeklyGuessing" class="screen mb-80">
+        <div class="user-header">
+            <div class="user-info">👤 <span class="userName">User</span></div>
+            <div class="partner-info">💑 Guessing: <span class="partnerName">Partner</span>'s Actions</div>
+        </div>
+
         <h1>Weekly Guessing</h1>
         <div class="card">
-            <h2>What Did Your Partner Work On?</h2>
+            <h2>What Did <span class="partnerName">Your Partner</span> Work On?</h2>
             <p style="color: #666; margin-bottom: 15px;">Select all you think they completed this week.</p>
             <div id="guessingList"></div>
             <button class="btn" onclick="submitGuesses()">Submit Guesses</button>
-        </div>
-    </div>
-
-    <!-- Pairing Screen -->
-    <div id="pairing" class="screen">
-        <h1>Connect Partners</h1>
-        <div class="card">
-            <h2>Your Pairing Code</h2>
-            <div class="pairing-code">
-                <div class="code-display" id="pairingCode">----</div>
-                <p style="color: #666; margin-top: 10px;">Share this with your partner</p>
-            </div>
-            <button class="btn btn-secondary" onclick="copyCode()">Copy Code</button>
-        </div>
-        
-        <div class="card">
-            <h2>Enter Partner's Code</h2>
-            <input type="text" id="partnerCode" placeholder="Enter 4-digit code" maxlength="4" pattern="[0-9]*" inputmode="numeric">
-            <button class="btn" onclick="connectPartner()">Connect</button>
         </div>
     </div>
 
@@ -495,6 +652,784 @@
         </a>
     </div>
 
-    <script src="would-box.js"></script>
+    <script>
+        // The Would Box - Core Logic v2 with Suggestions & Better Pairing
+
+        // Suggested Needs Database
+        const suggestedNeedsDB = {
+            "male": {
+                "20-30": [
+                    "Help keeping apartment clean",
+                    "Join me at the gym 2x week",
+                    "Plan weekend adventures",
+                    "Cook healthy meals together",
+                    "Morning coffee in bed",
+                    "Gaming/hobby time without guilt",
+                    "Help with career goals",
+                    "Regular date nights"
+                ],
+                "30-40": [
+                    "Help with morning routine",
+                    "Take over bedtime with kids",
+                    "Plan date nights monthly",
+                    "Handle weekend breakfast",
+                    "Manage one household project",
+                    "Support my fitness goals",
+                    "Share financial planning",
+                    "Quiet time to decompress"
+                ],
+                "40-50": [
+                    "Exercise partner 3x week",
+                    "Handle teen driving practice",
+                    "Plan quarterly getaways",
+                    "Take over bills/finances",
+                    "Organize garage/storage",
+                    "Support aging parents",
+                    "Share home maintenance",
+                    "Intimacy without pressure"
+                ],
+                "50-60": [
+                    "Morning walks together",
+                    "Handle all tech support",
+                    "Plan retirement together",
+                    "Coordinate medical appointments",
+                    "Maintain garden/yard",
+                    "Regular couple's activities",
+                    "Help with diet changes",
+                    "Travel planning"
+                ],
+                "60+": [
+                    "Daily walks together",
+                    "Medication reminders",
+                    "Drive to appointments",
+                    "Learn new hobbies together",
+                    "Handle online tasks",
+                    "Regular social activities",
+                    "Help with physical tasks",
+                    "Memory support"
+                ]
+            },
+            "female": {
+                "20-30": [
+                    "Listen without fixing",
+                    "Surprise flowers weekly",
+                    "Help with meal prep Sundays",
+                    "Clean bathroom regularly",
+                    "Plan romantic surprises",
+                    "Compliment daily",
+                    "Support career ambitions",
+                    "Share mental load"
+                ],
+                "30-40": [
+                    "Take kids for solo time",
+                    "Handle morning routine",
+                    "Book date nights monthly",
+                    "Emotional check-ins daily",
+                    "Share household decisions",
+                    "Appreciate efforts verbally",
+                    "Help with school activities",
+                    "Maintain romance"
+                ],
+                "40-50": [
+                    "Notice appearance changes",
+                    "Support health goals",
+                    "Plan surprise dates",
+                    "Handle dinner 2x week",
+                    "Listen to work stress",
+                    "Share emotional labor",
+                    "Support friend time",
+                    "Physical affection daily"
+                ],
+                "50-60": [
+                    "Daily appreciation",
+                    "Support health changes",
+                    "Plan couple activities",
+                    "Handle heavy tasks",
+                    "Travel together more",
+                    "Share household equally",
+                    "Regular compliments",
+                    "Emotional intimacy"
+                ],
+                "60+": [
+                    "Daily companionship",
+                    "Help with technology",
+                    "Share memories often",
+                    "Handle driving duties",
+                    "Plan social activities",
+                    "Physical assistance",
+                    "Patience with changes",
+                    "Regular affection"
+                ]
+            },
+            "other": {
+                "20-30": ["Quality time together", "Active listening", "Share responsibilities", "Support goals", "Regular appreciation"],
+                "30-40": ["Work-life balance", "Share parenting", "Date nights", "Emotional support", "Household equity"],
+                "40-50": ["Health support", "Share planning", "Maintain intimacy", "Support changes", "Adventure together"],
+                "50-60": ["Companionship", "Health focus", "Travel plans", "Support transitions", "Daily appreciation"],
+                "60+": ["Daily support", "Health assistance", "Social activities", "Patience", "Companionship"]
+            }
+        };
+
+        // Generate unique user ID
+        function generateUserId() {
+            return 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // App State with proper user isolation
+        let currentUser = {
+            id: null,
+            name: '',
+            age: '',
+            gender: '',
+            partnerName: '',
+            pairingCode: null,
+            partnerId: null,
+            partnerCode: null,
+            isPaired: false,
+            pairingStatus: 'none', // none, requested, pending, paired
+            needs: [], // My needs from partner
+            topThree: [], // Secret top 3 needs (triple points)
+            woulds: [], // 5 things I would do from partner's needs
+            priorities: [], // Ordered woulds with top 2 getting double points
+            completedThisWeek: [],
+            guessedThisWeek: [],
+            score: 0,
+            partnerScore: 0,
+            lastDaily: null,
+            todaysWould: null
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserData();
+            setInterval(checkForPairingRequests, 5000); // Check every 5 seconds
+        });
+
+        // User Management
+        function loadUserData() {
+            const userId = localStorage.getItem('wouldbox_userId');
+            if (userId) {
+                const userData = localStorage.getItem(`wouldbox_${userId}`);
+                if (userData) {
+                    currentUser = JSON.parse(userData);
+                    if (currentUser.name) {
+                        updateAllUserNames();
+                        if (currentUser.isPaired) {
+                            showDashboard();
+                        } else {
+                            showPairing();
+                        }
+                        updateNavigation(true);
+                    }
+                }
+            }
+        }
+
+        function saveUserData() {
+            if (!currentUser.id) {
+                currentUser.id = generateUserId();
+                localStorage.setItem('wouldbox_userId', currentUser.id);
+            }
+            localStorage.setItem(`wouldbox_${currentUser.id}`, JSON.stringify(currentUser));
+            
+            // Save to shared space for partner access
+            if (currentUser.pairingCode) {
+                const sharedData = {
+                    userId: currentUser.id,
+                    name: currentUser.name,
+                    needs: currentUser.needs.map(n => ({ text: n.text, id: n.id })),
+                    woulds: currentUser.woulds,
+                    completedThisWeek: currentUser.completedThisWeek,
+                    isPaired: currentUser.isPaired,
+                    partnerId: currentUser.partnerId,
+                    partnerName: currentUser.partnerName
+                };
+                localStorage.setItem(`wouldbox_shared_${currentUser.pairingCode}`, JSON.stringify(sharedData));
+            }
+            
+            updateAllUserNames();
+        }
+
+        // Update all user name displays
+        function updateAllUserNames() {
+            // Update all elements with userName class
+            document.querySelectorAll('.userName, #currentUserName').forEach(el => {
+                el.textContent = currentUser.name || 'User';
+            });
+            
+            // Update all elements with partnerName class
+            document.querySelectorAll('.partnerName, #currentPartnerName').forEach(el => {
+                el.textContent = currentUser.partnerName || 'Partner';
+            });
+            
+            // Update pairing status badge
+            const badge = document.getElementById('pairingStatusBadge');
+            if (badge) {
+                if (currentUser.isPaired) {
+                    badge.textContent = 'Paired ✓';
+                    badge.className = 'pairing-status paired';
+                } else if (currentUser.pairingStatus === 'requested') {
+                    badge.textContent = 'Request Sent';
+                    badge.className = 'pairing-status pending';
+                } else if (currentUser.pairingStatus === 'pending') {
+                    badge.textContent = 'Request Received';
+                    badge.className = 'pairing-status pending';
+                } else {
+                    badge.textContent = 'Not Paired';
+                    badge.className = 'pairing-status';
+                }
+            }
+        }
+
+        // Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            updateAllUserNames();
+        }
+
+        function updateNavigation(show) {
+            document.querySelector('.bottom-nav').style.display = show ? 'flex' : 'none';
+        }
+
+        // Onboarding Flow
+        function startOnboarding() {
+            showScreen('setup');
+        }
+
+        function loginExisting() {
+            const code = prompt('Enter your 4-digit code:');
+            if (code && code.length === 4) {
+                // Try to load user by code
+                const allKeys = Object.keys(localStorage);
+                for (let key of allKeys) {
+                    if (key.startsWith('wouldbox_user_')) {
+                        const userData = JSON.parse(localStorage.getItem(key));
+                        if (userData.pairingCode === code) {
+                            currentUser = userData;
+                            localStorage.setItem('wouldbox_userId', currentUser.id);
+                            updateAllUserNames();
+                            if (currentUser.isPaired) {
+                                showDashboard();
+                            } else {
+                                showPairing();
+                            }
+                            updateNavigation(true);
+                            return;
+                        }
+                    }
+                }
+                alert('Account not found. Please create a new account.');
+            }
+        }
+
+        function createAccount() {
+            const name = document.getElementById('userName').value.trim();
+            const age = document.getElementById('userAge').value;
+            const gender = document.getElementById('userGender').value;
+            const partnerName = document.getElementById('partnerName').value.trim();
+            
+            if (!name || !partnerName || !age || !gender) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            currentUser.name = name;
+            currentUser.age = age;
+            currentUser.gender = gender;
+            currentUser.partnerName = partnerName;
+            currentUser.pairingCode = Math.floor(1000 + Math.random() * 9000).toString();
+            
+            saveUserData();
+            showNeedsList();
+            updateNavigation(true);
+        }
+
+        // Needs Management
+        function showNeedsList() {
+            showScreen('needsList');
+            renderNeedsList();
+            renderTopThreeSelector();
+            renderSuggestedNeeds();
+        }
+
+        function renderSuggestedNeeds() {
+            const container = document.getElementById('suggestedNeeds');
+            const suggestions = suggestedNeedsDB[currentUser.gender]?.[currentUser.age] || 
+                              suggestedNeedsDB['other'][currentUser.age] || [];
+            
+            container.innerHTML = suggestions.map(need => 
+                `<span class="suggestion-chip" onclick="addSuggestedNeed('${need.replace(/'/g, "\\'")}')">${need}</span>`
+            ).join('');
+        }
+
+        function addSuggestedNeed(needText) {
+            document.getElementById('newNeed').value = needText;
+            addNeed();
+        }
+
+        function addNeed() {
+            const input = document.getElementById('newNeed');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            if (currentUser.needs.length >= 20) {
+                alert('Maximum 20 needs allowed');
+                return;
+            }
+            
+            const need = {
+                id: Date.now(),
+                text: text,
+                isTopThree: false
+            };
+            
+            currentUser.needs.push(need);
+            input.value = '';
+            
+            renderNeedsList();
+            renderTopThreeSelector();
+            saveUserData();
+        }
+
+        function renderNeedsList() {
+            const container = document.getElementById('needsListItems');
+            const countEl = document.getElementById('needsCount');
+            
+            countEl.textContent = currentUser.needs.length;
+            
+            container.innerHTML = currentUser.needs.map(need => `
+                <li class="need-item ${currentUser.topThree.includes(need.id) ? 'top-three' : ''}">
+                    <span>${need.text}</span>
+                    <button onclick="removeNeed(${need.id})" style="background: none; border: none; color: #ff4444; cursor: pointer;">❌</button>
+                </li>
+            `).join('');
+        }
+
+        function renderTopThreeSelector() {
+            const container = document.getElementById('topThreeList');
+            container.innerHTML = currentUser.needs.map(need => `
+                <label style="display: block; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" 
+                           value="${need.id}" 
+                           ${currentUser.topThree.includes(need.id) ? 'checked' : ''}
+                           onchange="toggleTopThree(${need.id})"
+                           style="margin-right: 10px;">
+                    ${need.text}
+                </label>
+            `).join('');
+        }
+
+        function toggleTopThree(needId) {
+            const index = currentUser.topThree.indexOf(needId);
+            if (index > -1) {
+                currentUser.topThree.splice(index, 1);
+            } else {
+                if (currentUser.topThree.length >= 3) {
+                    alert('You can only select 3 top needs');
+                    event.target.checked = false;
+                    return;
+                }
+                currentUser.topThree.push(needId);
+            }
+            renderNeedsList();
+            saveUserData();
+        }
+
+        function removeNeed(needId) {
+            currentUser.needs = currentUser.needs.filter(n => n.id !== needId);
+            currentUser.topThree = currentUser.topThree.filter(id => id !== needId);
+            renderNeedsList();
+            renderTopThreeSelector();
+            saveUserData();
+        }
+
+        function saveNeeds() {
+            if (currentUser.needs.length < 1) {
+                alert('Please add at least 1 need before continuing');
+                return;
+            }
+            
+            saveUserData();
+            showPairing();
+        }
+
+        // Pairing - FIXED VERSION
+        function showPairing() {
+            showScreen('pairing');
+            document.getElementById('pairingCode').textContent = currentUser.pairingCode;
+            checkForPairingRequests();
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(currentUser.pairingCode);
+            alert('Code copied to clipboard!');
+        }
+
+        function requestPairing() {
+            const code = document.getElementById('partnerCode').value;
+            if (code.length !== 4) {
+                alert('Please enter a 4-digit code');
+                return;
+            }
+            
+            // Store pairing request
+            const requestKey = `wouldbox_pairing_${code}`;
+            const request = {
+                requesterCode: currentUser.pairingCode,
+                requesterName: currentUser.name,
+                requesterId: currentUser.id,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(requestKey, JSON.stringify(request));
+            
+            currentUser.partnerCode = code;
+            currentUser.pairingStatus = 'requested';
+            saveUserData();
+            
+            // Show status
+            const status = document.getElementById('pairingStatus');
+            status.className = 'notification';
+            status.textContent = 'Pairing request sent! Waiting for partner to accept...';
+            status.style.display = 'block';
+        }
+
+        function checkForPairingRequests() {
+            // Check if we have a pending request
+            const requestKey = `wouldbox_pairing_${currentUser.pairingCode}`;
+            const request = localStorage.getItem(requestKey);
+            
+            if (request) {
+                const data = JSON.parse(request);
+                // Don't show our own request
+                if (data.requesterId !== currentUser.id) {
+                    // Show pending request
+                    document.getElementById('pendingRequest').style.display = 'block';
+                    document.getElementById('requesterName').textContent = data.requesterName;
+                    currentUser.pairingStatus = 'pending';
+                    saveUserData();
+                }
+            }
+            
+            // Check if our request was accepted
+            if (currentUser.pairingStatus === 'requested' && currentUser.partnerCode) {
+                const acceptKey = `wouldbox_pairing_accepted_${currentUser.pairingCode}`;
+                const accepted = localStorage.getItem(acceptKey);
+                if (accepted) {
+                    completePairing(currentUser.partnerCode);
+                    localStorage.removeItem(acceptKey);
+                }
+            }
+        }
+
+        function acceptPairing() {
+            const requestKey = `wouldbox_pairing_${currentUser.pairingCode}`;
+            const request = JSON.parse(localStorage.getItem(requestKey));
+            
+            if (request) {
+                // Mark as accepted for the requester
+                const acceptKey = `wouldbox_pairing_accepted_${request.requesterCode}`;
+                localStorage.setItem(acceptKey, 'true');
+                
+                // Complete pairing on our end
+                currentUser.partnerCode = request.requesterCode;
+                completePairing(request.requesterCode);
+                
+                // Clean up
+                localStorage.removeItem(requestKey);
+                document.getElementById('pendingRequest').style.display = 'none';
+            }
+        }
+
+        function rejectPairing() {
+            const requestKey = `wouldbox_pairing_${currentUser.pairingCode}`;
+            localStorage.removeItem(requestKey);
+            document.getElementById('pendingRequest').style.display = 'none';
+            currentUser.pairingStatus = 'none';
+            saveUserData();
+        }
+
+        function completePairing(partnerCode) {
+            // Get partner's shared data
+            const partnerData = localStorage.getItem(`wouldbox_shared_${partnerCode}`);
+            if (!partnerData) {
+                alert('Partner data not found. Make sure they have created their needs list.');
+                return;
+            }
+            
+            const partner = JSON.parse(partnerData);
+            currentUser.partnerId = partner.userId;
+            currentUser.partnerCode = partnerCode;
+            currentUser.isPaired = true;
+            currentUser.pairingStatus = 'paired';
+            currentUser.partnerName = partner.name; // Update with actual partner name
+            
+            // Store partner's needs for would selection
+            localStorage.setItem(`wouldbox_partner_needs_${currentUser.id}`, JSON.stringify(partner.needs));
+            
+            saveUserData();
+            
+            // Show success
+            const status = document.getElementById('pairingStatus');
+            status.className = 'notification success';
+            status.textContent = `Successfully paired with ${partner.name}!`;
+            status.style.display = 'block';
+            
+            setTimeout(() => {
+                showWouldSelection();
+            }, 2000);
+        }
+
+        // Would Selection
+        function showWouldSelection() {
+            showScreen('wouldSelection');
+            const partnerNeeds = JSON.parse(localStorage.getItem(`wouldbox_partner_needs_${currentUser.id}`) || '[]');
+            
+            const container = document.getElementById('partnerNeedsList');
+            container.innerHTML = partnerNeeds.map(need => `
+                <div class="would-item" onclick="toggleWould('${need.id}', this)">
+                    ${need.text}
+                </div>
+            `).join('');
+        }
+
+        let selectedWoulds = [];
+
+        function toggleWould(needId, element) {
+            const index = selectedWoulds.indexOf(needId);
+            
+            if (index > -1) {
+                selectedWoulds.splice(index, 1);
+                element.classList.remove('selected');
+            } else {
+                if (selectedWoulds.length >= 5) {
+                    alert('You can only select 5 items');
+                    return;
+                }
+                selectedWoulds.push(needId);
+                element.classList.add('selected');
+            }
+            
+            document.getElementById('selectedCount').textContent = selectedWoulds.length;
+        }
+
+        function confirmWouldSelection() {
+            if (selectedWoulds.length !== 5) {
+                alert('Please select exactly 5 items');
+                return;
+            }
+            
+            currentUser.woulds = selectedWoulds;
+            saveUserData();
+            showPrioritySetting();
+        }
+
+        // Priority Setting
+        function showPrioritySetting() {
+            showScreen('prioritySetting');
+            
+            const partnerNeeds = JSON.parse(localStorage.getItem(`wouldbox_partner_needs_${currentUser.id}`) || '[]');
+            const container = document.getElementById('priorityList');
+            
+            currentUser.priorities = currentUser.woulds.slice(); // Copy woulds as initial order
+            
+            container.innerHTML = currentUser.priorities.map((wouldId, index) => {
+                const need = partnerNeeds.find(n => n.id == wouldId);
+                return `
+                    <div class="priority-item ${index < 2 ? 'top-two' : ''}" 
+                         draggable="true" 
+                         data-id="${wouldId}">
+                        <div class="priority-number">${index + 1}</div>
+                        <div>${need ? need.text : ''}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            setupDragAndDrop();
+        }
+
+        function setupDragAndDrop() {
+            const items = document.querySelectorAll('.priority-item');
+            let draggedItem = null;
+            
+            items.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedItem = this;
+                    this.classList.add('dragging');
+                });
+                
+                item.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                });
+                
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                });
+                
+                item.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    if (this !== draggedItem) {
+                        const allItems = [...document.querySelectorAll('.priority-item')];
+                        const draggedIndex = allItems.indexOf(draggedItem);
+                        const targetIndex = allItems.indexOf(this);
+                        
+                        if (draggedIndex < targetIndex) {
+                            this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                        } else {
+                            this.parentNode.insertBefore(draggedItem, this);
+                        }
+                        
+                        updatePriorityOrder();
+                    }
+                });
+            });
+        }
+
+        function updatePriorityOrder() {
+            const items = document.querySelectorAll('.priority-item');
+            currentUser.priorities = [];
+            
+            items.forEach((item, index) => {
+                const wouldId = item.dataset.id;
+                currentUser.priorities.push(wouldId);
+                
+                // Update number and styling
+                item.querySelector('.priority-number').textContent = index + 1;
+                item.classList.toggle('top-two', index < 2);
+            });
+        }
+
+        function savePriorities() {
+            saveUserData();
+            showDashboard();
+        }
+
+        // Dashboard
+        function showDashboard() {
+            if (!currentUser.isPaired) {
+                showPairing();
+                return;
+            }
+            showScreen('dashboard');
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            document.getElementById('myScore').textContent = currentUser.score || 0;
+            document.getElementById('partnerScore').textContent = currentUser.partnerScore || 0;
+            
+            // Get today's would
+            const today = new Date().toDateString();
+            if (currentUser.lastDaily !== today && currentUser.priorities && currentUser.priorities.length > 0) {
+                // Pick random would for today
+                const randomIndex = Math.floor(Math.random() * currentUser.priorities.length);
+                currentUser.todaysWould = currentUser.priorities[randomIndex];
+                currentUser.lastDaily = today;
+                saveUserData();
+            }
+            
+            // Display today's would
+            const partnerNeeds = JSON.parse(localStorage.getItem(`wouldbox_partner_needs_${currentUser.id}`) || '[]');
+            const todaysNeed = partnerNeeds.find(n => n.id == currentUser.todaysWould);
+            document.getElementById('todaysAction').textContent = todaysNeed ? todaysNeed.text : 'Set up your Would list first';
+        }
+
+        function markComplete() {
+            if (!currentUser.todaysWould) return;
+            
+            if (!currentUser.completedThisWeek.includes(currentUser.todaysWould)) {
+                currentUser.completedThisWeek.push(currentUser.todaysWould);
+                saveUserData();
+                alert('Marked as complete! Your partner will guess this in the weekly review.');
+            } else {
+                alert('Already completed this week!');
+            }
+        }
+
+        // Weekly Guessing Game
+        function showWeeklyGuessing() {
+            showScreen('weeklyGuessing');
+            
+            if (!currentUser.partnerCode) {
+                alert('Not paired yet');
+                return;
+            }
+            
+            // Get partner's shared data
+            const partnerData = localStorage.getItem(`wouldbox_shared_${currentUser.partnerCode}`);
+            if (!partnerData) {
+                alert('Partner data not found');
+                return;
+            }
+            
+            const partner = JSON.parse(partnerData);
+            const container = document.getElementById('guessingList');
+            
+            // Show my needs that partner selected as woulds
+            const myNeedsTheyWould = currentUser.needs.filter(need => 
+                partner.woulds && partner.woulds.includes(need.id.toString())
+            );
+            
+            container.innerHTML = myNeedsTheyWould.map(need => `
+                <label style="display: block; margin: 10px 0; cursor: pointer;">
+                    <input type="checkbox" value="${need.id}" style="margin-right: 10px;">
+                    ${need.text}
+                </label>
+            `).join('');
+        }
+
+        function submitGuesses() {
+            const checkboxes = document.querySelectorAll('#guessingList input:checked');
+            const guesses = Array.from(checkboxes).map(cb => cb.value);
+            
+            // Get partner's completed items
+            const partnerData = JSON.parse(localStorage.getItem(`wouldbox_shared_${currentUser.partnerCode}`));
+            const partnerCompleted = partnerData.completedThisWeek || [];
+            
+            let correctGuesses = 0;
+            guesses.forEach(guess => {
+                if (partnerCompleted.includes(guess)) {
+                    correctGuesses++;
+                    
+                    // Check if it was a top priority (double points)
+                    const priorityIndex = currentUser.priorities.indexOf(guess);
+                    if (priorityIndex < 2) {
+                        currentUser.partnerScore += 2; // Double points for top 2
+                    } else {
+                        currentUser.partnerScore += 1;
+                    }
+                    
+                    // Check if it was a top 3 need (triple points)
+                    if (currentUser.topThree.includes(parseInt(guess))) {
+                        currentUser.partnerScore += 2; // Additional 2 points (total 3)
+                    }
+                }
+                currentUser.score += 1; // 1 point for each guess
+            });
+            
+            saveUserData();
+            alert(`You got ${correctGuesses} correct! Points earned: ${currentUser.score}`);
+            showDashboard();
+        }
+
+        // Additional Navigation Functions
+        function showWouldList() {
+            if (!currentUser.isPaired) {
+                alert('Please pair with your partner first');
+                showPairing();
+                return;
+            }
+            if (currentUser.woulds.length === 0) {
+                showWouldSelection();
+            } else {
+                showPrioritySetting();
+            }
+        }
+
+        function showScores() {
+            showWeeklyGuessing();
+        }
+    </script>
 </body>
 </html>
